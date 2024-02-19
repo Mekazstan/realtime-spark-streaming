@@ -5,6 +5,7 @@
 import datetime
 import random
 import os
+import uuid
 from confluent_kafka import SerializingProducer
 import simplejson as json
 
@@ -31,8 +32,32 @@ start_time = datetime.now()
 start_location = CITY_A_COORDINATES.copy()
 
 
+def get_next_time():
+    """_summary_
+    This function is used to generate new timestamp for each movement of the vehicle.
+    It increments the current start_time by a random number from 30 - 60 seconds & 
+    add to it. 
+
+    Returns:
+        It returns the new start_time
+    """
+    global start_time
+    
+    start_time += datetime.timedelta(seconds=random.randint(30, 60))
+    
+    return start_time
+
 # Simulating a moving vehicle
 def simulate_vehicle_movement():
+    """_summary_
+    This function simulates a moving vehicle by increasing the start_loaction's
+    longitude & latitude respectively. Although in a real world setting this data
+    is meant to be gotten from e.g. IOT devices. This is hardcoded in to enable simulation
+    and randomness is also included with a range to avoid anomaly in data generation.
+
+    Returns:
+        It returns the new start_location details
+    """
     global start_location
     
     # Move towards destination
@@ -48,7 +73,13 @@ def simulate_vehicle_movement():
 
 # Generating vehicle data
 def generate_vehicle_data(device_id):
-    simulate_vehicle_movement()
+    location = simulate_vehicle_movement()
+    
+    return {
+        'id': uuid.uuid4(),
+        'deviceId': device_id,
+        'timestamp': get_next_time().isoformat()
+    }
 
 
 
