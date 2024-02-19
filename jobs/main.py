@@ -10,6 +10,7 @@ from confluent_kafka import SerializingProducer
 import simplejson as json
 
 # Setting the latitude & Longitude for both locations
+# These data should be gotten from Users input   <------------ TODO
 CITY_A_COORDINATES = {"latitude": 51.5074, "longitude": -0.1278}
 CITY_B_COORDINATES = {"latitude": 52.4862, "longitude": -1.8904}
 
@@ -27,13 +28,12 @@ TRAFFIC_TOPIC = os.getenv('TRAFFIC_TOPIC', 'traffic_data')
 WEATHER_TOPIC = os.getenv('WEATHER_TOPIC', 'weather_data')
 EMERGENCY_TOPIC = os.getenv('EMERGENCY_TOPIC', 'emergency_data')
 
-random.seed(42)
+random.seed(50)
 # Setting start details [time & location]
 start_time = datetime.now()
 start_location = CITY_A_COORDINATES.copy()
 
 # ---------------- FOR GENERATING VEHICLE DATA -----------------------
-
 def get_next_time():
     """_summary_
         This function is used to generate new timestamp for each movement of the vehicle.
@@ -75,6 +75,7 @@ def simulate_vehicle_movement():
 
 # Generating vehicle data
 def generate_vehicle_data(device_id):
+    # These data should be gotten from Users input   <------------ TODO
     """_summary_
         This function gets the newly generated location details & timestamp.
         It uses this new details to generate the car data. 
@@ -99,8 +100,12 @@ def generate_vehicle_data(device_id):
 
 
 # ---------------- FOR GENERATING GPS DATA -----------------------
-
 def generate_gps_data(device_id, timestamp, vehicle_type='private'):
+    # These data should be gotten from Users input   <------------ TODO
+    """_summary_
+    Returns:
+        It returns the vehicle's generated GPS data.
+    """
     return {
         'id': uuid.uuid4(),
         'deviceId': device_id,
@@ -111,8 +116,12 @@ def generate_gps_data(device_id, timestamp, vehicle_type='private'):
     }
     
 # ---------------- FOR GENERATING TRAFFIC CAMERA DATA -----------------------
-
 def generate_traffic_camera_data(device_id, timestamp, location, camera_id):
+    # These data should be gotten from an API   <------------ TODO
+    """_summary_
+    Returns:
+        It returns the traffic camera data.
+    """
     return {
         'id': uuid.uuid4(),
         'deviceId': device_id,
@@ -125,15 +134,66 @@ def generate_traffic_camera_data(device_id, timestamp, location, camera_id):
 
 # ---------------- FOR GENERATING WEATHER DATA -----------------------
 def generate_weather_data(device_id, timestamp, location):
+    """_summary_
+    Returns:
+        It returns the weather data.
+    """
+    # All these data needs to be gotten from a weather API  <------------ TODO
     return {
         'id': uuid.uuid4(),
         'deviceId': device_id,
         'location': location,
         'timestamp': timestamp,
         'temperature' : random.uniform(-5, 26),
-        'weatherCondition' : random.choice(['Sunny', 'Cloudy', 'Rain', 'Snow'])
+        'weatherCondition' : random.choice(['Sunny', 'Cloudy', 'Rain', 'Snow']),
+        'precipitation': random.uniform(0, 25),
+        'windSpeed': random.uniform(0, 100),
+        'humidity': random.randint(0, 100), # in %
+        'airQualityIndex': random.uniform(0, 500)
     }
     
+
+# ---------------- FOR GENERATING EMERGENCY DATA -----------------------
+def generate_emergency_incident_data(device_id, timestamp, location):
+    """_summary_
+    Returns:
+        It returns the emergency data.
+    Limitations:
+        Not able to detect the accident type 
+    """
+    return {
+        'id': uuid.uuid4(),
+        'deviceId': device_id,
+        'incidentType': uuid.uuid4(),
+        # 'type' : random.choice(['Accident', 'Fire', 'Medical', 'Police', 'None']),
+        'type': 'None',
+        'location': location,
+        'timestamp': timestamp,
+        'status':random.choice(['Active', 'Resolved']),
+        'description': "Description of incident"
+    }
+
+
+def json_serializer(obj):
+    if isinstance(obj, uuid.UUID):
+        return str(obj)
+    raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable.")
+
+def deliver_report(err, msg):
+    if err is not None:
+        print(f"Message delivery failed: {err}")
+    else:
+        print(f"Message delivered to {msg.topic()} [{msg.partition()}].")
+    
+# Function to produce data to Kafka
+def produce_data_to_kafka(producer, topic, data):
+    # NB: the data is serialized in order to be produced into Kafka
+    producer.produce(
+        topic,
+        key=str(data['id']),
+        value=json.dumps(data, default=json_serializer).encode('utf-8'),
+        on_delivery=deliver_report
+    )
 
 # Simulating a journey
 def simulate_journey(producer, device_id):
@@ -144,8 +204,13 @@ def simulate_journey(producer, device_id):
         gps_data = generate_gps_data(device_id, vehicle_data['timestamp'])
         traffic_camera_data = generate_traffic_camera_data(device_id, vehicle_data['timestamp'], vehicle_data['location'], 'Camer123')
         weather_data =  generate_weather_data(device_id, vehicle_data['timestamp'], vehicle_data['location'])
-        
+        emergency_incident_data = generate_emergency_incident_data(device_id, vehicle_data['timestamp'], vehicle_data['location'])
     
+        produce_data_to_kafka(producer, VEHICLE_TOPIC, vehicle_data)
+        produce_data_to_kafka(producer, GPS_TOPIC, gps_data)
+        produce_data_to_kafka(producer, TRAFFIC_TOPIC, traffic_camera_data)
+        produce_data_to_kafka(producer, WEATHER_TOPIC, weather_data)
+        produce_data_to_kafka(producer, EMERGENCY_TOPIC, emergency_incident_data)
     
 
 if __name__ == "__main__":
