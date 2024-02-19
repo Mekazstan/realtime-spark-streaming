@@ -31,3 +31,7 @@ ruok - "R U OK"
 pip freeze > requirements.txt [Get all installed required packages]
 
 ### TODO:
+- Create S3 bucket with partitions
+- In permissions disable block all public access (It should show publicly accessible)
+- In bucket policy enable allowing all get & put operations
+- Set IAM user to have the new rights
