@@ -3,6 +3,7 @@
 """
 
 import datetime
+import random
 import os
 from confluent_kafka import SerializingProducer
 import simplejson as json
@@ -29,6 +30,37 @@ EMERGENCY_TOPIC = os.getenv('EMERGENCY_TOPIC', 'emergency_data')
 start_time = datetime.now()
 start_location = CITY_A_COORDINATES.copy()
 
+
+# Simulating a moving vehicle
+def simulate_vehicle_movement():
+    global start_location
+    
+    # Move towards destination
+    start_location['lattitude'] += LATITUDE_INCREMENT
+    start_location['longitude'] += LONGITUDE_INCREMENT
+    
+    # Adding randomness to simulate actual road travel
+    start_location['lattitude'] += random.uniform(-0.0005, 0.0005)
+    start_location['longitude'] += random.uniform(-0.0005, 0.0005)
+    
+    return start_location
+
+
+# Generating vehicle data
+def generate_vehicle_data(device_id):
+    simulate_vehicle_movement()
+
+
+
+# Simulating a journey
+def simulate_journey(producer, device_id):
+    driving = True
+    
+    while driving:
+        vehicle_data = generate_vehicle_data(device_id)
+    
+    
+
 if __name__ == "__main__":
     # Setting up producer config
     producer_config = {
@@ -39,7 +71,7 @@ if __name__ == "__main__":
     producer = SerializingProducer(producer_config)
     
     try:
-        simulate_journey(producer, "My-VehicleName-123")
+        simulate_journey(producer, "My-VehicleNo-123")
     except KeyboardInterrupt:
         print("Simulation ended by the user")
     except Exception as e:
