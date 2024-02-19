@@ -28,3 +28,4 @@ ruok - "R U OK"
 - pip install confluent_kafka
 - pip install simplejson
 - pip install pyspark
+pip freeze > requirements.txt [Get all installed required packages]
