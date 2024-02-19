@@ -174,6 +174,7 @@ def generate_emergency_incident_data(device_id, timestamp, location):
     }
 
 
+# ---------------- FOR PRODUCING DATA TO KAFKA -----------------------
 def json_serializer(obj):
     if isinstance(obj, uuid.UUID):
         return str(obj)
