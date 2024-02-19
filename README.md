@@ -23,3 +23,8 @@ https://youtu.be/C42DIddev10
 https://www.youtube.com/watch?v=e1w7R1hEvCs&t=9s
 
 ruok - "R U OK"
+
+### Packages to install
+- pip install confluent_kafka
+- pip install simplejson
+- pip install pyspark
