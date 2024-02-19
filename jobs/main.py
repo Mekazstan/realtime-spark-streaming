@@ -2,6 +2,7 @@
     This is where production code will be written.
 """
 
+import datetime
 import os
 from confluent_kafka import SerializingProducer
 import simplejson as json
@@ -23,3 +24,7 @@ GPS_TOPIC = os.getenv('GPS_TOPIC', 'gps_data')
 TRAFFIC_TOPIC = os.getenv('TRAFFIC_TOPIC', 'traffic_data')
 WEATHER_TOPIC = os.getenv('WEATHER_TOPIC', 'weather_data')
 EMERGENCY_TOPIC = os.getenv('EMERGENCY_TOPIC', 'emergency_data')
+
+# Setting start details [time & location]
+start_time = datetime.now()
+start_location = CITY_A_COORDINATES.copy()
