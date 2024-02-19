@@ -28,3 +28,19 @@ EMERGENCY_TOPIC = os.getenv('EMERGENCY_TOPIC', 'emergency_data')
 # Setting start details [time & location]
 start_time = datetime.now()
 start_location = CITY_A_COORDINATES.copy()
+
+if __name__ == "__main__":
+    # Setting up producer config
+    producer_config = {
+        'bootstrap.servers': KAFKA_BOOTSTRAP_SERVERS,
+        'error_cb': lambda err: print(f'Kafka error: {err}')
+    }
+    
+    producer = SerializingProducer(producer_config)
+    
+    try:
+        simulate_journey(producer, "My-VehicleName-123")
+    except KeyboardInterrupt:
+        print("Simulation ended by the user")
+    except Exception as e:
+        print(f"An unexpected error occured: {e}")
