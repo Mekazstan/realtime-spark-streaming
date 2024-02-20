@@ -35,3 +35,4 @@ pip freeze > requirements.txt [Get all installed required packages]
 - In permissions disable block all public access (It should show publicly accessible)
 - In bucket policy enable allowing all get & put operations
 - Set IAM user to have the new rights
+- Get Access & Secret key from IAM user >> Security Creds
