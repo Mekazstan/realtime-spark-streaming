@@ -36,3 +36,4 @@ pip freeze > requirements.txt [Get all installed required packages]
 - In bucket policy enable allowing all get & put operations
 - Set IAM user to have the new rights
 - Get Access & Secret key from IAM user >> Security Creds
+- Ensure config.py does not push to github
